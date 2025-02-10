@@ -60,6 +60,9 @@
         <canvas id="qrCanvas"></canvas>
     </div>
     <script>
+        var billId = generateBillId();
+        var totalAmount = 0;
+
         document.getElementById('orderButton').addEventListener('click', function() {
             var menu = document.getElementById('menu');
             if (menu.style.display === 'none') {
@@ -88,8 +91,6 @@
             }
         });
 
-        var totalAmount = 0;
-
         function addToBill(item, price) {
             var billItems = document.getElementById('billItems');
             var listItem = document.createElement('li');
@@ -98,15 +99,52 @@
             totalAmount += price;
             document.getElementById('totalAmount').textContent = totalAmount;
             alert(item + ' har lagts till på din nota');
+            saveBill();
+        }
+
+        function generateBillId() {
+            return 'bill-' + Math.random().toString(36).substr(2, 9);
         }
 
         function generateQRCode() {
-            var url = window.location.href;
+            var url = window.location.href.split('?')[0] + '?billId=' + billId;
             QRCode.toCanvas(document.getElementById('qrCanvas'), url, function (error) {
                 if (error) console.error(error);
                 console.log('QR code generated!');
             });
         }
+
+        function saveBill() {
+            var billData = {
+                items: [],
+                total: totalAmount
+            };
+            document.querySelectorAll('#billItems li').forEach(function(item) {
+                billData.items.push(item.textContent);
+            });
+            localStorage.setItem(billId, JSON.stringify(billData));
+        }
+
+        function loadBill() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var loadedBillId = urlParams.get('billId');
+            if (loadedBillId) {
+                var billData = JSON.parse(localStorage.getItem(loadedBillId));
+                if (billData) {
+                    billId = loadedBillId;
+                    totalAmount = billData.total;
+                    document.getElementById('totalAmount').textContent = totalAmount;
+                    var billItems = document.getElementById('billItems');
+                    billData.items.forEach(function(item) {
+                        var listItem = document.createElement('li');
+                        listItem.textContent = item;
+                        billItems.appendChild(listItem);
+                    });
+                }
+            }
+        }
+
+        loadBill();
     </script>
 </body>
 </html>
