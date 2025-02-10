@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR-betalning</title>
+    <style>
+        #menu {
+            display: none;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        #bill {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        #qrCode {
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+</head>
+<body>
+    <p1>
+        <h1>QR-betalning</h1>
+        <h2>Skanna QR-koden för att betala</h2>
+        <h3>2025-02-10</h3>
+    </p1>
+    <button id="orderButton">
+        <p>Beställa</p>
+    </button>
+    
+    <button id="shareBillButton">
+        <p>Dela nota</p>
+    </button>
+
+    <button id="billButton">
+        <p>Nota</p>
+    </button>
+    <div id="menu">
+        <h3>Meny</h3>
+        <ul>
+            <li>Pasta - 100 SEK <button onclick="addToBill('Pasta', 100)">Lägg till på notan</button></li>
+            <li>Köttbullar - 120 SEK <button onclick="addToBill('Köttbullar', 120)">Lägg till på notan</button></li>
+            <li>Coca Cola - 20 SEK <button onclick="addToBill('Coca Cola', 20)">Lägg till på notan</button></li>
+            <li>Vin - 150 SEK <button onclick="addToBill('Vin', 150)">Lägg till på notan</button></li>
+            <li>Bröd - 30 SEK <button onclick="addToBill('Bröd', 30)">Lägg till på notan</button></li>
+        </ul>
+    </div>
+    <div id="bill" style="display: none;">
+        <h3>Din nota</h3>
+        <ul id="billItems"></ul>
+        <p>Totalt: <span id="totalAmount">0</span> SEK</p>
+    </div>
+    <div id="qrCode">
+        <h3>Skanna denna QR-kod för att dela notan</h3>
+        <canvas id="qrCanvas"></canvas>
+    </div>
+    <script>
+        document.getElementById('orderButton').addEventListener('click', function() {
+            var menu = document.getElementById('menu');
+            if (menu.style.display === 'none') {
+                menu.style.display = 'block';
+            } else {
+                menu.style.display = 'none';
+            }
+        });
+
+        document.getElementById('billButton').addEventListener('click', function() {
+            var bill = document.getElementById('bill');
+            if (bill.style.display === 'none') {
+                bill.style.display = 'block';
+            } else {
+                bill.style.display = 'none';
+            }
+        });
+
+        document.getElementById('shareBillButton').addEventListener('click', function() {
+            var qrCode = document.getElementById('qrCode');
+            if (qrCode.style.display === 'none') {
+                qrCode.style.display = 'block';
+                generateQRCode();
+            } else {
+                qrCode.style.display = 'none';
+            }
+        });
+
+        var totalAmount = 0;
+
+        function addToBill(item, price) {
+            var billItems = document.getElementById('billItems');
+            var listItem = document.createElement('li');
+            listItem.textContent = item + ' - ' + price + ' SEK';
+            billItems.appendChild(listItem);
+            totalAmount += price;
+            document.getElementById('totalAmount').textContent = totalAmount;
+            alert(item + ' har lagts till på din nota');
+        }
+
+        function generateQRCode() {
+            var url = window.location.href;
+            QRCode.toCanvas(document.getElementById('qrCanvas'), url, function (error) {
+                if (error) console.error(error);
+                console.log('QR code generated!');
+            });
+        }
+    </script>
+</body>
+</html>
